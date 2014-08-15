@@ -92,7 +92,7 @@ class PresenterCollection implements ArrayAccess, ArrayableInterface, Countable,
     //Method of ArrayableInterface
     public function toArray()
     {
-        return $this->toArray();
+        return $this->collection->toArray();
     }
 
     //Method of JsonableInterface
