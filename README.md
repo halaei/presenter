@@ -1,4 +1,4 @@
 presenter
 =========
 
-A flexible presenter for Eloquent ORM
+A flexible presenter for Laravel
