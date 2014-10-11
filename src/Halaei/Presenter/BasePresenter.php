@@ -15,11 +15,10 @@ class BasePresenter implements ArrayAccess, ArrayableInterface, JsonableInterfac
     protected $model;
 
     /**
-     * @var string
+     * @var array
      * public methods of $model that can be called via presenter(using __call() magic method)
-     * will turn into a regexp by __construct()
      */
-    protected $callables;
+    protected $callables = [];
 
     /**
      * @var array
@@ -37,8 +36,7 @@ class BasePresenter implements ArrayAccess, ArrayableInterface, JsonableInterfac
     public function __construct($model, $callables = [], $friend = null)
     {
         $this->model = $model;
-        $callables += static::$default_callables;
-        $this->callables = '/' . join('|', $callables) . '/';
+        $this->callables = array_flip(array_merge($callables, static::$default_callables));
         $this->friend = $friend;
     }
 
@@ -54,7 +52,7 @@ class BasePresenter implements ArrayAccess, ArrayableInterface, JsonableInterfac
 
     public function __call($name, $arguments)
     {
-        if (preg_match($this->callables, $name)) {
+        if (array_key_exists($name, $this->callables)) {
             return $this->wrapResult($name, $arguments);
         }
 
