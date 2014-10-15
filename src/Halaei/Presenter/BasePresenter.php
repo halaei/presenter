@@ -1,16 +1,17 @@
 <?php namespace Halaei\Presenter;
 
 use ArrayAccess;
-use Exception;
+use Halaei\Presenter\Exceptions\PresenterException;
 use JsonSerializable;
-use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Contracts\ArrayableInterface;
 use Illuminate\Support\Contracts\JsonableInterface;
 
 class BasePresenter implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonSerializable
 {
     /**
-     * @var Eloquent
+     * @var Model
      */
     protected $model;
 
@@ -55,13 +56,12 @@ class BasePresenter implements ArrayAccess, ArrayableInterface, JsonableInterfac
         if (array_key_exists($name, $this->callables)) {
             return $this->wrapResult($name, $arguments);
         }
-
-        $backtrace = debug_backtrace(0, 2)[1];
+        $backtrace = debug_backtrace(0, 3)[2];
         if (isset($backtrace['class']) && $backtrace['class'] == $this->friend) {
             return $this->wrapResult($name, $arguments);
         }
         $msg = 'no access to ' . get_class($this->model) . ".$name() via" . 'class ' . get_class($this);
-        throw new Exception($msg);
+        throw new PresenterException($msg);
     }
 
     public function getModel()
@@ -70,7 +70,7 @@ class BasePresenter implements ArrayAccess, ArrayableInterface, JsonableInterfac
         if (isset($caller['class']) && !is_null($this->friend) && $caller['class'] == $this->friend)
             return $this->model;
         $msg = "No access to prenseter's getModel()";
-        throw new Exception($msg);
+        throw new PresenterException($msg);
     }
 
     //Methods of ArrayAccess:
@@ -122,8 +122,10 @@ class BasePresenter implements ArrayAccess, ArrayableInterface, JsonableInterfac
         $result = call_user_func([$this->model, $method_name], $arguments);
         if ($result === $this->model)
             return $this;
-        elseif ($result instanceof Eloquent)
+        elseif ($result instanceof Model)
             return $result->present();
+        elseif ($result instanceof Collection)
+            return new PresenterCollection($result);
         return $result;
     }
 }
