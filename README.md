@@ -1,4 +1,4 @@
-presenter (A flexible presenter for Laravel)
+Presenter
 =========
 This is an alternative implementation of [laracasts/presenter](https://github.com/laracasts/Presenter) with some added features. Some parts of this document is copy-past!
 
