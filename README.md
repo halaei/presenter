@@ -73,79 +73,95 @@ That's it! You're done. Now, within your view, you can do:
 
 Notice how the call to the `present()` method (which will return your new or cached presenter object) also provides the benefit of making it perfectly clear where you must go, should you need to modify how a full name is displayed on the page.
 
-Have fun!
-
 # Added Features
 
 ## BasePresenter
 If you want to return model from a repository function, but you don't want the client code do something like this:
 
 ```php
-    $model->newQuery()->delete(); //delete all the records of table!
+$model->newQuery()->delete(); //delete all the records of table!
 ```
 then you can use PresentableTrait in your model, even without setting $presenter_class. There is a default presenter class for this purpose: BasePresenter.
 
 ```php
-    function someRepositoryFunction()
-    {
-        return $this->model->where('some condition')->firstOrFail()->present();
-    }
+function someRepositoryFunction()
+{
+    return $this->model->where('some condition')->firstOrFail()->present();
+}
 ```
 
 ## $presenter_callables
 If you want to give some flexibilities of eloquent model to the client of your repository, but not too much flexibility, you can define $presenter_callables while using PresentableTrait:
 
 ```php
-    use Halaei\Presenter\PresentableTrait;
+use Halaei\Presenter\PresentableTrait;
 
-        class User extends \Eloquent {
+    class User extends \Eloquent {
 
-        use PresentableTrait;
+    use PresentableTrait;
 
-        protected $presenter_class = 'UserPresenter';
+    protected $presenter_class = 'UserPresenter';
 
-        protected $presenter_callables = ['save']; //to make your presenter a real active record!
+    protected $presenter_callables = ['save']; //to make your presenter a real active record!
 }
+
+//client code can do:
+
+/** var UserPresenter $presenter **/
+$presenter = $your_user_reopsitory->findById(1);
+
+$presenter->email = 'john@doe.com';
+
+$presenter->save();
 ```
 
 ## $presenter_friend
 If you want your repository being able to access the model that is presented, and you don't want that access nowhere else (i.e. YourRepositoryClass being a C++ friend of your presenter) do the following:
 
 ```php
-        class User extends \Eloquent {
+class User extends \Eloquent {
 
-            use PresentableTrait;
+    use PresentableTrait;
 
-            protected $presenter_class = 'UserPresenter';
+    protected $presenter_class = 'UserPresenter';
 
-            protected $presenter_friend = 'YourRepositoryClass';
+    protected $presenter_friend = 'YourRepositoryClass';
 
-        ...
-        }
+...
+}
 
-        class YourRepositoryClass()
-        {
-            function save(UserPresenter $user)
-            {
-                //you can do
-                $user->save();
-                //or equivalently
-                $user->getModel()->save();
-                //but that can be done only in this friend class! Outsiders will get an Exection!
-            }
-        }
+class YourRepositoryClass()
+{
+    function save(UserPresenter $user)
+    {
+        //you can do
+        $user->save();
+        //or equivalently
+        $user->getModel()->save();
+        //but that can be done only in this friend class! Outsiders will be blocked by an Exection!
+    }
+}
 ```
 
 ## PresenterCollection
 4- Instead of returning an eloquent collection, which is basically an array of eloquent models, simply wrap that collection inside a Halaei\Presenter\PresenterCollection:
 
 ```php
-    use Halaei\Presenter\PresenterCollection;
+use Halaei\Presenter\PresenterCollection;
 
-    ...
+...
 
-    function anotherRepositoryFunction()
-    {
-        return new PresenterCollection($this->model->where('some condition')->get());
-    }
+function anotherRepositoryFunction()
+{
+    return new PresenterCollection($this->model->where('some condition')->get());
+}
 ```
+
+# Final Notes
+You can, but are not forced to, define these 3 special variables either static or non-static, depends of what you think is better.
+```php
+$presenter_class;
+$presenter_callables;
+$presenter_friend;
+```
+Feel free to use whatever subset of features and options best fits your situation.
