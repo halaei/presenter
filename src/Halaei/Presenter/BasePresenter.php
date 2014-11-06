@@ -2,13 +2,13 @@
 
 use ArrayAccess;
 use Halaei\Presenter\Exceptions\PresenterException;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
 use JsonSerializable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Contracts\ArrayableInterface;
-use Illuminate\Support\Contracts\JsonableInterface;
 
-class BasePresenter implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonSerializable
+class BasePresenter implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
 {
     /**
      * @var Model

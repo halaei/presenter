@@ -1,15 +1,16 @@
 <?php namespace Halaei\Presenter;
 
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Contracts\ArrayableInterface;
-use Illuminate\Support\Contracts\JsonableInterface;
 use ArrayAccess;
 use Countable;
 use IteratorAggregate;
 use JsonSerializable;
 use ArrayIterator;
-class PresenterCollection implements ArrayAccess, ArrayableInterface, Countable, IteratorAggregate, JsonableInterface, JsonSerializable
+
+class PresenterCollection implements ArrayAccess, Arrayable, Countable, IteratorAggregate, Jsonable, JsonSerializable
 {
     /**
      * @var Collection
