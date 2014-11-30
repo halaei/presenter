@@ -5,16 +5,11 @@ use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Contracts\Pagination\Presenter;
 use Illuminate\Database\Eloquent\Collection;
 
-class PresenterPaginator implements Paginator, LengthAwarePaginator{
-
-    /**
-     * @var Paginator | LengthAwarePaginator
-     */
-    private $paginator;
+class PresenterPaginator extends ContainerWrapper implements Paginator, LengthAwarePaginator{
 
     function __construct(Paginator $paginator)
     {
-        $this->paginator = $paginator;
+        $this->container = $paginator;
     }
 
     /**
@@ -25,7 +20,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function url($page)
     {
-        return $this->paginator->url($page);
+        return $this->container->url($page);
     }
 
     /**
@@ -37,7 +32,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function appends($key, $value = null)
     {
-        return $this->paginator->appends($key, $value);
+        return $this->container->appends($key, $value);
     }
 
     /**
@@ -48,7 +43,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function fragment($fragment = null)
     {
-        return $this->paginator->fragment($fragment);
+        return $this->container->fragment($fragment);
     }
 
     /**
@@ -58,7 +53,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function nextPageUrl()
     {
-        return $this->paginator->nextPageUrl();
+        return $this->container->nextPageUrl();
     }
 
     /**
@@ -68,7 +63,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function previousPageUrl()
     {
-        return $this->paginator->previousPageUrl();
+        return $this->container->previousPageUrl();
     }
 
     /**
@@ -78,12 +73,9 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function items()
     {
-        $result = $this->paginator->items();
-        foreach ($result as &$item) {
-            if($item instanceof Model)
-                $item = $item->present();
-        }
-        return $result;
+        $result = $this->container->items();
+
+        return $this->toPresenterArray($result);
     }
 
     /**
@@ -91,7 +83,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function getCollection()
     {
-        $items = $this->paginator->items();
+        $items = $this->container->items();
         $collection = new Collection($items);
         return new PresenterCollection($collection);
     }
@@ -103,7 +95,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function firstItem()
     {
-        return $this->paginator->firstItem();
+        return $this->container->firstItem();
     }
 
     /**
@@ -113,7 +105,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function lastItem()
     {
-        return $this->paginator->lastItem();
+        return $this->container->lastItem();
     }
 
     /**
@@ -123,7 +115,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function perPage()
     {
-        return $this->paginator->perPage();
+        return $this->container->perPage();
     }
 
     /**
@@ -133,7 +125,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function currentPage()
     {
-        return $this->paginator->currentPage();
+        return $this->container->currentPage();
     }
 
     /**
@@ -143,7 +135,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function hasPages()
     {
-        return $this->paginator->hasPages();
+        return $this->container->hasPages();
     }
 
     /**
@@ -153,7 +145,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function hasMorePages()
     {
-        return $this->paginator->hasMorePages();
+        return $this->container->hasMorePages();
     }
 
     /**
@@ -163,7 +155,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function isEmpty()
     {
-        return $this->paginator->isEmpty();
+        return $this->container->isEmpty();
     }
 
     /**
@@ -174,7 +166,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function render(Presenter $presenter = null)
     {
-        return $this->paginator->render($presenter);
+        return $this->container->render($presenter);
     }
 
     /**
@@ -184,7 +176,7 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function total()
     {
-        return $this->paginator->total();
+        return $this->container->total();
     }
 
     /**
@@ -194,7 +186,12 @@ class PresenterPaginator implements Paginator, LengthAwarePaginator{
      */
     public function lastPage()
     {
-        return $this->paginator->lastPage();
+        return $this->container->lastPage();
+    }
+
+    function __call($name, $arguments)
+    {
+        return call_user_func_array([$this->container, $name], $arguments);
     }
 
 }
