@@ -16,22 +16,17 @@ class PresenterCollection implements ArrayAccess, Arrayable, Countable, Iterator
      * @var Collection
      */
     protected $collection;
-    protected $callables;
-    protected $friend;
 
-
-    function __construct(Collection $collection, $callables = [], $friend = null)
+    function __construct(Collection $collection)
     {
         $this->collection = $collection;
-        $this->callables = $callables;
-        $this->friend = $friend;
     }
 
     function toPresenterArray()
     {
         $array = [];
         foreach ($this->collection as $key => $model) {
-            array_push($array, $model->present($this->callables, $this->friend));
+            array_push($array, $model->present());
         }
         return $array;
     }
@@ -42,14 +37,14 @@ class PresenterCollection implements ArrayAccess, Arrayable, Countable, Iterator
         if($result === $this->collection)
             return $this;
         elseif($result instanceof Collection)
-            return new static($result, $this->callables, $this->friend);
+            return new static($result);
         elseif($result instanceof Model)
-            return $result->present($this->callables, $this->friend);
+            return $result->present();
         elseif(is_array($result))
         {
             foreach ($result as &$item) {
                 if($item instanceof Model)
-                    $item = $item->present($this->callables, $this->friend);
+                    $item = $item->present();
             }
             unset($item);
             return $result;
@@ -90,13 +85,13 @@ class PresenterCollection implements ArrayAccess, Arrayable, Countable, Iterator
         return new ArrayIterator($this->toPresenterArray());
     }
 
-    //Method of ArrayableInterface
+    //Method of Arrayable
     public function toArray()
     {
         return $this->collection->toArray();
     }
 
-    //Method of JsonableInterface
+    //Method of Jsonable
     public function toJson($options = 0)
     {
         return $this->collection->toJson();
