@@ -75,7 +75,7 @@ class PresenterPaginator extends ContainerWrapper implements Paginator, LengthAw
     {
         $result = $this->container->items();
 
-        return $this->toPresenterArray($result);
+        return $this->getPresenterArray($result);
     }
 
     /**

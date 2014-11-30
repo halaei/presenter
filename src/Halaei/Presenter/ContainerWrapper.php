@@ -48,7 +48,7 @@ abstract class ContainerWrapper implements ArrayAccess, Arrayable, Countable, It
     //Method of IteratorAggregate
     public function getIterator()
     {
-        return new ArrayIterator($this->toPresenterArray($this->container));
+        return new ArrayIterator($this->toPresenterArray());
     }
 
     //Method of Arrayable
@@ -69,7 +69,12 @@ abstract class ContainerWrapper implements ArrayAccess, Arrayable, Countable, It
         return $this->container->jsonSerialize();
     }
 
-    protected function toPresenterArray($items)
+    public function toPresenterArray()
+    {
+        return $this->getPresenterArray($this->container);
+    }
+
+    protected function getPresenterArray($items)
     {
         return array_map(
             function($item){
