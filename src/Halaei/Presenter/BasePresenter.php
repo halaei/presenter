@@ -43,7 +43,7 @@ class BasePresenter implements ArrayAccess, Arrayable, Jsonable, JsonSerializabl
 
     public function __get($key)
     {
-        return $this->model->getAttribute($key);
+        return $this->wrapResult($this->model->getAttribute($key));
     }
 
     public function __set($key, $value)
@@ -54,11 +54,11 @@ class BasePresenter implements ArrayAccess, Arrayable, Jsonable, JsonSerializabl
     public function __call($name, $arguments)
     {
         if (array_key_exists($name, $this->callables)) {
-            return $this->wrapResult($name, $arguments);
+            return $this->callWrapResult($name, $arguments);
         }
         $backtrace = debug_backtrace(0, 3)[2];
         if (isset($backtrace['class']) && $backtrace['class'] == $this->friend) {
-            return $this->wrapResult($name, $arguments);
+            return $this->callWrapResult($name, $arguments);
         }
         $msg = 'no access to ' . get_class($this->model) . ".$name() via" . 'class ' . get_class($this);
         throw new PresenterException($msg);
@@ -117,15 +117,27 @@ class BasePresenter implements ArrayAccess, Arrayable, Jsonable, JsonSerializabl
      * @param $arguments
      * @return $this|mixed
      */
-    protected function wrapResult($method_name, $arguments)
+    protected function callWrapResult($method_name, $arguments)
     {
         $result = call_user_func([$this->model, $method_name], $arguments);
-        if ($result === $this->model)
+
+        return $this->wrapResult($result);
+    }
+
+    /**
+     * @param $result
+     * @return $this|PresenterCollection
+     */
+    protected function wrapResult($result)
+    {
+        if ($result === $this->model) {
             return $this;
-        elseif ($result instanceof Model)
+        } elseif ($result instanceof Model) {
             return $result->present();
-        elseif ($result instanceof Collection)
+        } elseif ($result instanceof Collection) {
             return new PresenterCollection($result);
+        }
+
         return $result;
     }
 }
