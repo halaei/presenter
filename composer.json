@@ -16,13 +16,13 @@
         "phpunit/phpunit": "~4.0"
     },
     "autoload": {
-        "psr-0": {
-            "Halaei\\Presenter": "src/"
+        "psr-4": {
+            "Halaei\\Presenter\\": "src/"
         }
     },
     "autoload-dev": {
-        "psr-0": {
-            "Halaei\\Presenter": "tests/"
+        "psr-4": {
+            "Halaei\\Presenter\\": "tests/"
         }
     },
     "minimum-stability": "dev"
