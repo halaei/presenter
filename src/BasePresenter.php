@@ -103,7 +103,7 @@ class BasePresenter implements ArrayAccess, Arrayable, Jsonable, JsonSerializabl
     //Method of JsonableInterface
     public function toJson($options = 0)
     {
-        return $this->model->toArray();
+        return $this->model->toJson();
     }
 
     //Method of JsonSerializable
